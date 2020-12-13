@@ -2,6 +2,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="diana.orrego.calculadorabasica_d">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.WRITE_SMS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -16,6 +34,71 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".RegisterUser">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UserActivity" />
+        </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBYjMOMJp7FhtmZjUTjzF95a3_Ik733Eho" />
+
+        <activity
+            android:name=".UserActivity"
+            android:label="@string/title_activity_user"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".DoctorActivity"
+            android:label="Médicos Disponibles">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UserActivity" />
+        </activity>
+        <activity
+            android:name=".MarkerActivity"
+            android:label="Clínica Veterinaria">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UserActivity" />
+        </activity>
+        <activity
+            android:name=".RegisterClinic"
+            android:label="Registrar Clínica">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".DoctorActivity" />
+        </activity>
+        <activity
+            android:name=".ClinicListContent"
+            android:label="Clínicas de Xalapa">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MarkerActivity" />
+        </activity>
+        <activity
+            android:name=".DeleteClinic"
+            android:label="Eliminar Clínica">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MarkerActivity" />
+        </activity>
+        <activity
+            android:name=".RegisterDoctor"
+            android:label="Registrar Doctor">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".RegisterClinic" />
+        </activity>
+        <activity
+            android:name=".ClinicDetail"
+            android:label="Detalles de la Clínica">
+            <meta-data
+                android:name="android.support.PARENT_FRAGMENT"
+                android:value=".HomeFragment" />
+        </activity>
+
+        <activity android:name=".DoctorDetail"></activity>
     </application>
 
 </manifest>

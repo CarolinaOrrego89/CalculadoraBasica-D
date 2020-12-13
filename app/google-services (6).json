@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "74356107669",
+    "project_id": "chatnotificacionespushfi-dbba7",
+    "storage_bucket": "chatnotificacionespushfi-dbba7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:74356107669:android:949bca9bdc9aad73fbee9c",
+        "android_client_info": {
+          "package_name": "diana.orrego.calculadorabasica_d"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "74356107669-jbfg417gimdaol2fbgs66a72eri57rh2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyOvDT0_G54L5Nb7SSZ3oKYZB1Y3p7Tl4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "74356107669-jbfg417gimdaol2fbgs66a72eri57rh2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
