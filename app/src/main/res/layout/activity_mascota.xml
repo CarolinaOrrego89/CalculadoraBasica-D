@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/textser"
+        android:layout_width="237dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginBottom="8dp"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.107" />
+
+    <TextView
+        android:id="@+id/lbltitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="35dp"
+        android:background="@drawable/bottom"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:text="REGISTRO DE MASCOTAS"
+        android:textColor="@color/common_google_signin_btn_text_dark_default"
+        android:textSize="15sp"
+        app:drawableTint="#F6F5F5" />
+
+    <ImageView
+        android:id="@+id/imgFoto"
+        android:layout_width="99dp"
+        android:layout_height="80dp"
+        android:layout_marginLeft="140dp"
+        android:layout_marginTop="60dp"
+        android:background="@drawable/bottom" />
+
+
+    <EditText
+        android:id="@+id/txtNombreMascota"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="140dp"
+        android:hint="Nombre del responsable"
+        android:textColor="@android:color/background_dark"
+        android:textColorHint="@android:color/background_dark" />
+
+    <EditText
+        android:id="@+id/txtEdad"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="190dp"
+        android:hint="Edad de la Mascota"
+        android:textColorHint="@android:color/background_dark" />
+
+
+
+    <EditText
+        android:id="@+id/txtTelefono"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="320dp"
+        android:hint="Telefono"
+        android:textColorHint="@android:color/background_dark" />
+    <EditText
+        android:id="@+id/txtSexo"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="255dp"
+        android:hint="Sexo de la mascota"
+        android:textColorHint="@android:color/background_dark" />
+    <EditText
+        android:id="@+id/txtResponsable"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="380dp"
+        android:hint="Nombre de la mascota"
+        android:textColorHint="@android:color/background_dark" />
+
+    <EditText
+        android:id="@+id/txtCorreo"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="440dp"
+        android:hint="Correo del responsable"
+        android:textColorHint="@android:color/background_dark" />
+
+    <Button
+        android:id="@+id/btnGuardarMascota"
+        android:layout_width="match_parent"
+        android:layout_height="34dp"
+        android:layout_marginTop="500dp"
+        android:background="@drawable/bottom"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:text="Guardar Registro"
+        android:textColor="@android:color/background_light"
+        android:textSize="15sp" />
+
+
+
+
+</RelativeLayout>

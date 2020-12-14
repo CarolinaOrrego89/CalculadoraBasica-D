@@ -1,10 +1,13 @@
 package diana.orrego.calculadorabasica_d;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.ContextMenu;
 import android.view.MenuInflater;
@@ -12,6 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,199 +24,158 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 import java.util.ArrayList;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-public class MainActivity extends AppCompatActivity {
-    DB miBD;
-    Cursor misProductos;
-    Productos Producto;
-    ArrayList<Productos> stringArrayList = new ArrayList<Productos>();
-    ArrayList<Productos> copyStringArrayList = new ArrayList<Productos>();
-    ListView ltsProducto;
+        //defining view objects
+        private EditText TextEmail;
+        private EditText TextPassword;
+        private Button btnRegistrar, btnLogin;
+        private ProgressDialog progressDialog;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        FloatingActionButton btnAgregarProducto = (FloatingActionButton)findViewById(R.id.btnAgregarProducto);
-        btnAgregarProducto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                agregar_productos("nuevo", new String[]{});
-            }
-        });
-        obtenerDatosProducto();
-        buscarProducto();
-    }
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
+        //Declaramos un objeto firebaseAuth
+        private FirebaseAuth firebaseAuth;
 
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu_producto, menu);
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                setContentView(R.layout.activity_main);
 
-        AdapterView.AdapterContextMenuInfo adapterContextMenuInfo = (AdapterView.AdapterContextMenuInfo)menuInfo;
-        misProductos.moveToPosition(adapterContextMenuInfo.position);
-        menu.setHeaderTitle(misProductos.getString(1));
-    }
-    void buscarProducto(){
-        final TextView tempVal = (TextView)findViewById(R.id.txtBuscarProducto);
-        tempVal.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                //inicializamos el objeto firebaseAuth
+                firebaseAuth = FirebaseAuth.getInstance();
 
-            }
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                try {
-                    stringArrayList.clear();
-                    if (tempVal.getText().toString().trim().length() < 1) {//no hay texto para buscar
-                        stringArrayList.addAll(copyStringArrayList);
-                    } else {//hacemos la busqueda
-                        for (Productos am : copyStringArrayList) {
-                            String nombre = am.getNombre();
-                            if (nombre.toLowerCase().contains(tempVal.getText().toString().trim().toLowerCase())) {
-                                stringArrayList.add(am);
-                            }
-                        }
-                    }
-                    adaptadorImagenes adaptadorImg = new adaptadorImagenes(getApplicationContext(), stringArrayList);
-                    ltsProducto.setAdapter(adaptadorImg);
-                }catch (Exception ex){
-                    Toast.makeText(getApplicationContext(), "Error: "+ ex.getMessage(), Toast.LENGTH_LONG).show();
+                //Referenciamos los views
+                TextEmail = (EditText) findViewById(R.id.TxtEmail);
+                TextPassword = (EditText) findViewById(R.id.TxtPassword);
+
+                btnRegistrar = (Button) findViewById(R.id.botonRegistrar);
+                btnLogin = (Button) findViewById(R.id.botonLogin);
+
+                progressDialog = new ProgressDialog(this);
+
+                //attaching listener to button
+                btnRegistrar.setOnClickListener(this);
+                btnLogin.setOnClickListener(this);
+        }
+
+        private void registrarUsuario(){
+
+                //Obtenemos el email y la contraseña desde las cajas de texto
+                String email = TextEmail.getText().toString().trim();
+                String password  = TextPassword.getText().toString().trim();
+
+                //Verificamos que las cajas de texto no esten vacías
+                if(TextUtils.isEmpty(email)){
+                        Toast.makeText(this,"Se debe ingresar un correo de Gmail",Toast.LENGTH_LONG).show();
+                        return;
                 }
-            }
-            @Override
-            public void afterTextChanged(Editable editable) {
 
-            }
-        });
-    }
+                if(TextUtils.isEmpty(password)){
+                        Toast.makeText(this,"Falta ingresar la contraseña",Toast.LENGTH_LONG).show();
+                        return;
+                }
 
-    @Override
-    public boolean onContextItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.mnxAgregar:
-                agregar_productos("nuevo", new String[]{});
-                return true;
 
-            case R.id.mnxModificar:
-                String[] dataProducto = {
-                        misProductos.getString(0),//idProducto
-                        misProductos.getString(1),//nombre
-                        misProductos.getString(2),//marca
-                        misProductos.getString(3),//descripcion
-                        misProductos.getString(4), //precio
-                        misProductos.getString(5)  //urlImg
-                };
-                agregar_productos("modificar",dataProducto);
-                return true;
+                progressDialog.setMessage("Realizando registro en linea...");
+                progressDialog.show();
 
-            case R.id.mnxEliminar:
-                AlertDialog eliminarFriend =  eliminarProducto();
-                eliminarFriend.show();
-                return true;
+                //creating a new user
+                firebaseAuth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                        //checking if success
+                                        if(task.isSuccessful()){
 
-            default:
-                return super.onContextItemSelected(item);
+                                                Toast.makeText(MainActivity.this,"Se ha registrado el usuario con el email: " + TextEmail.getText(),Toast.LENGTH_LONG).show();
+                                        }else{
+                                                if (task.getException() instanceof FirebaseAuthUserCollisionException){//si se presenta una colision
+                                                        Toast.makeText(MainActivity.this, "Este usuario ya existe", Toast.LENGTH_SHORT).show();
+                                                }else{
+                                                        Toast.makeText(MainActivity.this,"No se pudo registrar el usuario ingrese la @,el dominio y una contraseña con 6 o mas caracteres",Toast.LENGTH_LONG).show();
+                                                }
+                                        }
+                                        progressDialog.dismiss();
+                                }
+                        });
+
         }
-    }
-    AlertDialog eliminarProducto(){
-        AlertDialog.Builder confirmacion = new AlertDialog.Builder(MainActivity.this);
-        confirmacion.setTitle(misProductos.getString(1));
-        confirmacion.setMessage("Esta seguro de eliminar el registro del producto?");
-        confirmacion.setPositiveButton("Si", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                miBD.mantenimientoproductos("eliminar",new String[]{misProductos.getString(0)});
-                obtenerDatosProducto();
-                Toast.makeText(getApplicationContext(), "producto eliminado con exito.",Toast.LENGTH_SHORT).show();
-                dialogInterface.dismiss();
-            }
-        });
-        confirmacion.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(getApplicationContext(), "Eliminacion cancelada por el usuario.",Toast.LENGTH_SHORT).show();
-                dialogInterface.dismiss();
-            }
-        });
-        return confirmacion.create();
-    }
-    void obtenerDatosProducto(){
-        miBD = new DB(getApplicationContext(), "", null, 1);
-        misProductos = miBD.mantenimientoproductos("consultar", null);
-        if( misProductos.moveToFirst() ){ //hay registro en la BD que mostrar
-            mostrarDatosProducto();
-        } else{ //No tengo registro que mostrar.
-            Toast.makeText(getApplicationContext(), "No hay registros de productos que mostrar",Toast.LENGTH_LONG).show();
-            agregar_productos("nuevo", new String[]{});
+
+
+        //PARA INICIAR SESION
+
+
+
+
+
+        private void  loguearUsuario(){
+                //Obtenemos el email y la contraseña desde las cajas de texto
+                final String email = TextEmail.getText().toString().trim();
+                String password  = TextPassword.getText().toString().trim();
+
+                //Verificamos que las cajas de texto no esten vacías
+                if(TextUtils.isEmpty(email)){
+                        Toast.makeText(this,"Se debe ingresar un correo de Gmail",Toast.LENGTH_LONG).show();
+                        return;
+                }
+
+                if(TextUtils.isEmpty(password)){
+                        Toast.makeText(this,"Falta ingresar la contraseña",Toast.LENGTH_LONG).show();
+                        return;
+                }
+
+
+                progressDialog.setMessage("Iniciando sesion...");
+                progressDialog.show();
+
+                //INICIO DE SESION
+                firebaseAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                        //checking if success
+                                        if(task.isSuccessful()){
+
+//detalles
+                                                Toast.makeText(MainActivity.this,"Inicio Sesion " + TextEmail.getText(),Toast.LENGTH_LONG).show();
+                                                Intent intencion = new Intent (getApplication(), MascotaActivity.class);
+                                                intencion.putExtra(MascotaActivity.user, email);
+                                                startActivity(intencion);
+
+                                        }else{
+                                                if (task.getException() instanceof FirebaseAuthUserCollisionException){//si se presenta una colision
+                                                        Toast.makeText(MainActivity.this, "Este usuario ya existe", Toast.LENGTH_SHORT).show();
+                                                }else{
+                                                        Toast.makeText(MainActivity.this,"Usuario o contraseña incorrecto",Toast.LENGTH_LONG).show();
+                                                }
+                                        }
+                                        progressDialog.dismiss();
+                                }
+                        });
+
         }
-    }
-    void agregar_productos(String accion, String[] dataProducto){
-        Bundle enviarParametros = new Bundle();
-        enviarParametros.putString("accion",accion);
-        enviarParametros.putStringArray("dataProducto",dataProducto);
-        Intent  agregar_producto = new Intent(MainActivity.this, agregar_producto.class);
-        agregar_producto.putExtras(enviarParametros);
-        startActivity( agregar_producto);
-    }
-    void mostrarDatosProducto(){
-        stringArrayList.clear();
-        ltsProducto = (ListView)findViewById(R.id.ltsProducto);
-        do {
-            Producto = new Productos(misProductos.getString(0),misProductos.getString(1), misProductos.getString(2), misProductos.getString(3), misProductos.getString(4), misProductos.getString(5));
-            stringArrayList.add(Producto);
-        }while(misProductos.moveToNext());
-        adaptadorImagenes adaptadorImg = new adaptadorImagenes(getApplicationContext(), stringArrayList);
-        ltsProducto.setAdapter(adaptadorImg);
 
-        copyStringArrayList.clear();//limpiamos la lista de amigos
-        copyStringArrayList.addAll(stringArrayList);//creamos la copia de la lista de amigos...
-        registerForContextMenu(ltsProducto);
-    }
-}
-class Productos{
-    String id;
-    String nombre;
-    String marca;
-    String descripcion;
-    String precio;
-    String urlImg;
+        @Override
+        public void onClick(View view) {
 
-    public Productos(String id, String nombre, String marca, String descripcion, String precio, String urlImg) {
-        this.id = id;
-        this.nombre = nombre;
-        this.marca = marca;
-        this.descripcion = descripcion;
-        this.precio = precio;
-        this.urlImg = urlImg;
-    }
+                switch (view.getId()){
 
-    public String getId() { return id;}
+                        case R.id.botonRegistrar:
+                                //Invocamos al método:
+                                registrarUsuario();
+                                break;
+                        case R.id.botonLogin:
+                                loguearUsuario();
+                                break;
 
-    public void setId(String id) { this.id = id;}
-
-    public String getNombre() { return nombre; }
-
-    public void setNombre(String nombre) { this.nombre = nombre;}
-
-    public String getMarca() { return marca;}
-
-    public void setMarca(String marca) { this.marca= marca; }
-
-    public String getDescripcion() { return descripcion; }
-
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion;}
-
-    public String getPrecio() { return precio; }
-
-    public void setPrecio(String precio) { this.precio = precio; }
-
-    public String getUrlImg() { return urlImg; }
-
-    public void setUrlImg(String urlImg) { this.urlImg = urlImg; }
+                }
+        }
 }

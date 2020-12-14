@@ -12,16 +12,17 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
     public class adaptadorImagenes extends BaseAdapter {
         Context context;
-        ArrayList<Productos> datos;
+        ArrayList<Mascotas> datos;
         LayoutInflater layoutInflater;
-        Productos producto;
+        Mascotas user;
 
-        public adaptadorImagenes(Context context, ArrayList<Productos> datos){
+        public adaptadorImagenes(Context context, ArrayList<Mascotas> datos){
             this.context = context;
             try {
                 this.datos = datos;
@@ -47,14 +48,15 @@ import java.util.ArrayList;
         public View getView(int i, View view, ViewGroup viewGroup) {
             layoutInflater = (LayoutInflater)context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
             View itemView = layoutInflater.inflate(R.layout.listview_imagenes, viewGroup, false);
-            TextView textView = (TextView)itemView.findViewById(R.id.txtTitulo);
-            ImageView imageView = (ImageView)itemView.findViewById(R.id.img);
+            final TextView textView = (TextView)itemView.findViewById(R.id.txtTitulo);
+            final ImageView imageView = (ImageView)itemView.findViewById(R.id.img);
             try {
-                producto = datos.get(i);
-                textView.setText(producto.getNombre());
-                Bitmap imageBitmap = BitmapFactory.decodeFile(producto.getUrlImg());
-                imageView.setImageBitmap(imageBitmap);
-            }catch (Exception ex){ }
+                user = datos.get(i);
+                textView.setText(user.getUserName());
+                Glide.with(context).load(user.getUrlFotoFirestore()).into(imageView);
+            }catch (Exception ex){
+                textView.setText(ex.getMessage());
+            }
             return itemView;
         }
     }
